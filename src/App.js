@@ -8,7 +8,7 @@ import CodeView from "./components/CodeView";
 function App() {
   return (
       <Container maxWidth="md" sx={{padding:5}}>
-          <Card sx={{width:'100%',height:'100%'}} elevation={5}>
+          <Card sx={{width:'100%', height:'100%'}} elevation={5}>
               <CardContent sx={{display: 'flex'}}>
                   <Box sx={{flexGrow:1}}></Box>
                   <IconButton size={'small'}>

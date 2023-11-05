@@ -1,28 +1,39 @@
 import {useEffect, useState} from "react";
 import {Box, Stack} from "@mui/material";
 
-const codeData = `% facts
-% father(F, C): F is the father of C
-% mother(M, C): F is the mother of C
+const codeData = `person (john). 
+person(sam).
+person(alice).
+person(bill).
+person(bob).
+person(andy).
+person(sarah).
 
-father(ad, willem).
-mother(anje, willem).
+gender(male).
+gender(female).
 
-father(werner, marina).
-mother(danny, marina).
+father(john, sam).
+father(john, bill).
+father(bill, andy).
 
-father(richard, werner).
-mother(rosa, werner).
+mother(alice, sam).
+mother(alice, bill).
+mother(sarah, andy).
 
-father(cornelis_wilhelmus, ad).
-mother(corry, ad).
+gender_of(john, male).
+gender_of(alice, female).
+gender_of(sam, male).
+gender_of(bill, male).
+gender_of(andy, male).
+gender_of(sarah, female).
 
-% reasoning
-% descendant(D, A): A is the ancestor of descendant D
-descendant(D, A) :- father(A, D).
-descendant(D, A) :- mother(A, D).
-descendant(D, A) :- descendant(D, Z), father(A, Z).
-descendant(D, A) :- descendant(D, Z), mother(A, Z).`
+parent(X,Y) :- father(X,Y).
+parent(X, Y) :- mother(X,Y).
+
+child(X, Y) :- parent(Y, X).
+
+acncestor(X,Y) :- parent(X, Y),
+acncestor(X,Y) :- parent(Z, Y), ancestor(X,Z)`
 export default function() {
     const [codeline,setCodeline] = useState([]);
     useEffect(()=>{
