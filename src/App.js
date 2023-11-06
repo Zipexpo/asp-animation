@@ -22,9 +22,7 @@ function App() {
                   </IconButton>
               </CardContent>
               <Divider/>
-              <CardContent>
-                <CodeView/>
-              </CardContent>
+              <CodeView/>
           </Card>
       </Container>
   );
