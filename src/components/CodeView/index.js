@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
 import {Box, Stack, Grid} from "@mui/material";
 import Chip from '@mui/material-next/Chip';
+import TreeView from '../TreeView';
 import "./index.css"
 
 const codeData = `person (john). 
@@ -44,6 +45,7 @@ const script = [
 export default function() {
     const [codeline,setCodeline] = useState([]);
     const [codeHighlight,setCodeHighlight] = useState({});
+    const [rootNode,setRootNode] = useState();
     useEffect(()=>{
         // analyze
         const lines = codeData.split('\n')
@@ -71,9 +73,18 @@ export default function() {
                             }else if (s===')'){
                                 isContinue = false;
                             }
-                            item.condition[count] = (item.condition[count]??"") + s;
+                            if (!item.condition[count])
+                                item.condition[count] = {label:"",text:"",atom:[]};
+                            item.condition[count].text += s;
                         })
-                        item.condition.forEach((d,i)=>{item.condition[i] = d.trim()});
+                        item.condition.forEach((d,i)=>{
+                            item.condition[i].text = d.text.trim();
+                            const split = item.condition[i].text.split('(');
+                            item.condition[i].label = split[0].trim();
+                            if (split[1]){
+                                item.condition[i].atom = split[1].replace(')',"").split(',').map(d=>d.trim());
+                            }
+                        });
                     }else {
                         const splitDefine = text.split('(');
                         if (splitDefine.length > 1) {
@@ -95,21 +106,7 @@ export default function() {
             setCodeHighlight(hlist);
         }
     },[codeline,script])
-    const generateTree = useCallback((label)=>{
-        return ()=>{
 
-            // replace special symbol
-            const _label = label.replace('(',"\\(").replace(')',"\\)")
-            // find rule
-            const rules = [];
-            codeline.forEach((d,i)=> {
-                if (d.match(`${_label} :-`))
-                    rules.push([i,d])
-            });
-            debugger
-            console.log(rules)
-        }
-    },[codeline])
     return <Grid container sx={{height:'calc(100% - 66px)',overflow:'hidden'}}>
         <Grid item xs={3} sx={{borderRight:1,padding:1}} className={"shadow"}>
             <Stack spacing={1}>
@@ -117,7 +114,7 @@ export default function() {
                 label={s.label} 
                 onMouseEnter={highlight(s.onHover??[])}
                 onMouseLeave={highlight([])}
-                onClick={generateTree(s.label)}
+                onClick={()=>setRootNode(s)}
                 clickable/>)}
             </Stack>
         </Grid>
@@ -134,5 +131,6 @@ export default function() {
                 </Box>)}
             </Stack>
         </Grid>
+        <TreeView data={codeline} root={rootNode} open={!!rootNode} onClose={()=>setRootNode()}/>
     </Grid>
 }
