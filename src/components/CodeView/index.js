@@ -32,10 +32,10 @@ gender_of(sarah, female).
 parent(X,Y) :- father(X,Y).
 parent(X,Y) :- mother(X,Y).
 
-child(X,Y) :- parent(Y, X).
+child(X,Y) :- parent(Y,X).
 
-ancestor(X,Y) :- parent(X, Y).
-ancestor(X,Y) :- parent(Z, Y), ancestor(X,Z).`
+ancestor(X,Y) :- parent(X,Y).
+ancestor(X,Y) :- parent(Z,Y), ancestor(X,Z).`
 const script = [
     {label:'parent(X,Y)',onHover:[26,27]},
     {label:'child(X,Y)',onHover:[29]},
@@ -60,11 +60,20 @@ export default function() {
                         item.type = 'rule';
                         item.label = splitRule[0].trim();
                         item.condition = [];
+                        let isContinue = false;
                         let count = 0;
                         splitRule[1].replace('.','').split(/([(,)])/).forEach(s=>{
-
+                            if (s==='(')
+                                isContinue = true;
+                            else if ((s===",")&& !isContinue){
+                                count++;
+                                return;
+                            }else if (s===')'){
+                                isContinue = false;
+                            }
+                            item.condition[count] = (item.condition[count]??"") + s;
                         })
-                        splitRule[1].replace('.','').split(/([()])/).map(d=>d.trim());
+                        item.condition.forEach((d,i)=>{item.condition[i] = d.trim()});
                     }else {
                         const splitDefine = text.split('(');
                         if (splitDefine.length > 1) {
