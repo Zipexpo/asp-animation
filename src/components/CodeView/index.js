@@ -38,9 +38,9 @@ child(X,Y) :- parent(Y,X).
 ancestor(X,Y) :- parent(X,Y).
 ancestor(X,Y) :- parent(Z,Y), ancestor(X,Z).`
 const script = [
-    {label:'parent(X,Y)',onHover:[26,27]},
-    {label:'child(X,Y)',onHover:[29]},
-    {label:'ancestor(X,Y)',onHover:[31,32]},
+    {text:'parent(X,Y)',label:'parent',atom:["X","Y"],type:'rule',onHover:[26,27]},
+    {text:'child(X,Y)',label:'child',atom:["X","Y"],type:'rule',onHover:[29]},
+    {text:'ancestor(X,Y)',label:'ancestor',atom:["X","Y"],type:'rule',onHover:[31,32]},
 ]
 export default function() {
     const [codeline,setCodeline] = useState([]);
@@ -60,7 +60,8 @@ export default function() {
                     const splitRule = text.split(':-');
                     if (splitRule.length>1) {
                         item.type = 'rule';
-                        item.label = splitRule[0].trim();
+                        const ruleComp = sepRule(splitRule[0]);
+                        Object.keys(ruleComp).forEach(k => item[k] = ruleComp[k]);
                         item.condition = [];
                         let isContinue = false;
                         let count = 0;
@@ -79,12 +80,18 @@ export default function() {
                         })
                         item.condition.forEach((d,i)=>{
                             item.condition[i].text = d.text.trim();
-                            const split = item.condition[i].text.split('(');
-                            item.condition[i].label = split[0].trim();
-                            if (split[1]){
-                                item.condition[i].atom = split[1].replace(')',"").split(',').map(d=>d.trim());
-                            }
+                            item.condition[i] = {...item.condition[i],...sepRule(d.text.trim())};
                         });
+                        function sepRule(t) {
+                            const item = {};
+                            const split = t.split('(');
+                            item.label = split[0].trim();
+                            if (split[1]){
+                                item.labelText = t;
+                                item.atom = split[1].replace(')',"").split(',').map(d=>d.trim());
+                            }
+                            return item;
+                        }
                     }else {
                         const splitDefine = text.split('(');
                         if (splitDefine.length > 1) {
@@ -96,6 +103,8 @@ export default function() {
                 }
                 return item;
             })
+        // todo detect option
+        lines.option = lines.filter(d=>d.type==='fact' && d.label==='person');
         console.log(lines)
         setCodeline(lines);
     },[])
@@ -111,7 +120,7 @@ export default function() {
         <Grid item xs={3} sx={{borderRight:1,padding:1}} className={"shadow"}>
             <Stack spacing={1}>
                 {script.map((s,i)=><Chip key={i} 
-                label={s.label} 
+                label={s.text}
                 onMouseEnter={highlight(s.onHover??[])}
                 onMouseLeave={highlight([])}
                 onClick={()=>setRootNode(s)}
